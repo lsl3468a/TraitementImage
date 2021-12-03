@@ -679,12 +679,12 @@ void histogrammeCumule(int *histoR, int *histoG, int * histoB, int * histoCumule
 //Date de dernière modification : 27/11/21
 void egalisationHisto(struct fichierimage* fichier, char nomfic[100]) {
     int i, j;
-    int histoR[256];
-    int histoG[256];
-    int histoB[256];
-    int histoCumuleR[256];
-    int histoCumuleG[256];
-    int histoCumuleB[256];
+    int histoR[1000];
+    int histoG[1000];
+    int histoB[1000];
+    int histoCumuleR[1000];
+    int histoCumuleG[1000];
+    int histoCumuleB[1000];
     struct fichierimage* fichierEgal = NULL;
     fichierEgal = nouveau(fichier->entetebmp.largeur, fichier->entetebmp.hauteur);
     for (int i = 0; i < 256; i++)
@@ -731,9 +731,9 @@ void luminosite(struct fichierimage *fichier, char nomfic[100])
 //Fonction qui récupère les information d'une image
 //Date de création : 19/11/21
 //Date de dernière modification : 19/11/21
-struct entete_fichier infos(struct fichierimage *fichier)
+struct entete_bmp infos(struct fichierimage *fichier)
 {
-    return fichier->entetefichier;
+    return fichier->entetebmp;
 }
 
 //Fonction qui applique le filtre laplacien sur une image donnée
@@ -763,12 +763,33 @@ void contraste(struct fichierimage* fichier, char nomfic[100]) {
     free(fichierContr);
 }
 
-void menu(struct fichierimage *fichier, char nomfic[100]) {
-    char choix,couleur;
+//Fonction qui affiche un histogramme
+//Date de création : 02/12/21
+//Date de dernière modification : 03/12/21
+void affichagehisto(int histo[]) {
+    int i;
+    for (i = 0; i < 256; i++) {
+         printf("%2d %2d\n", i, histo[i]);
+    }
+    printf("\n");
+    printf("\n");
+}
+
+//Fonction qui propose un menu des actions réalisables sur l'image
+//Date de création 02/11/21
+//Date de denière modification : 03/12/21
+void menu(struct fichierimage *fichier) {
+    char choix,couleur,ch;
     int seuil,echelle, i,j, pourcentage;
+    char nomfic[100];
     matrice m;
-    struct entete_fichier info;
-    int histo[256];
+    struct entete_bmp info;
+    int histoR[1000], histoB[1000], histoG[1000];
+    for (i = 0; i < 256; i++) {
+        histoB[i] = 0;
+        histoG[i] = 0;
+        histoR[i] = 0;
+    }
     printf("Veuillez entrez les lettres du traitement que vous souhaitez r%caliser : \n",130);
     printf("\tImage en niveaux de gris : (n)\n");
     printf("\tImage miroir : (m)\n");
@@ -783,6 +804,7 @@ void menu(struct fichierimage *fichier, char nomfic[100]) {
     printf("\tImage n%cgative : (N) \n",130);
     printf("\tSeuillage de l'image : (S) \n");
     printf("\tConvolution de l'image : (c) \n");
+    printf("\tHistogrammes de l'image : (H)\n");
     printf("\tEgalisation de l'histogramme : (e) \n");
     printf("\tInformation sur l'image : (I) \n");
     printf("\tModification de la luminosit%c de l'image : (l)\n",130);
@@ -797,51 +819,120 @@ void menu(struct fichierimage *fichier, char nomfic[100]) {
     switch (choix)
     {
     case 'm':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp : \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         miroir(fichier,nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur une touche : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case'n':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         niveauxGris(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur une touche : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case'M':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         printf("Quelle couleur ? entrez R, V ou B :");
         scanf("%c", &couleur);
         clearBuffer();
         monochrome(fichier, couleur, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'N':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         negatif(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'S':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         printf("Entrez un seuil : \n");
         scanf("%d", &seuil);
         clearBuffer();
         seuillage(fichier, seuil, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 's':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         symetrieV(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'd':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         pivotD(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'g':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         pivotG(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'i':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         inversion(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case'r':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         printf("Veuillez entrer l'%cchelle : ", 130);
         scanf("%d", &echelle);
         clearBuffer();
         reduction(fichier, echelle, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'a':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         printf("Veuillez entrer l'%cchelle : ", 130);
         scanf("%d", &echelle);
         clearBuffer();
         agrandissement(fichier, echelle, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'c':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         printf("Entrer les elements de la matrice: \n");
         for (i = 0; i < 3; i++)
             for (j = 0; j < 3; j++)
@@ -850,12 +941,27 @@ void menu(struct fichierimage *fichier, char nomfic[100]) {
                 scanf("%d", &m[i][j]);
             }
         convolution(fichier, m, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'f':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         filtre_moyen(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'O':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         sobel(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'P':
         printf("Quelle couleur ? entrez R, V ou B :");
@@ -865,20 +971,68 @@ void menu(struct fichierimage *fichier, char nomfic[100]) {
         printf("Le pourcentage est de : %d \n", pourcentage);
         break;
     case 'e':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         egalisationHisto(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
-    case 'l':
+    case 'l':printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         luminosite(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'I':
         info = infos(fichier);
-        printf("%s", info);
+        printf("Les informations de l'image : \n");
+        printf("\tLa taille de l'image est : %d \n", info.taille_image);
+        printf("\tLa largeur de l'image est de : %d \n", info.largeur);
+        printf("\tL'alignement de l'image est de : %d \n", info.alignement);
+        printf("\tLa hauteur de l'image est de : %d \n", info.hauteur);
+        printf("\tLe plan de l'image est de : %d \n", info.plans);
+        printf("\tLa profondeur de l'image est de : %d \n", info.profondeur);
+        printf("\tLa compression de l'image est de : %d \n", info.compression);
+        printf("\tLa taille totale de l'image est de : %d \n", info.taille_image_totale);
+        printf("\tLa r%csolutionH de l'image est de : %d \n", 130, info.resolutionh);
+        printf("\tLa r%csolutionV de l'image est de : %d \n", 130, info.resolutionv);
+        printf("\tLe nombre de couleur de l'image est de : %d \n", info.nbrcouleur);
+        printf("\tLe nombre de couleur i de l'image est de : %d \n", info.nbrcouleuri);
+        printf("Entrer pour quitter !");
+        ch = getchar();
+        clearBuffer();
+
         break;
     case 'L':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         filtre_laplacien(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
         break;
     case 'C':
+        printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce avec l'extension .bmp: \n", 133, 130);
+        scanf("%s", &nomfic);
+        clearBuffer();
         contraste(fichier, nomfic);
+        printf("Pour pouvoir afficher l'image charg%ce appuyer sur 'entrer' : \n", 130);
+        ch = getchar();
+        system(nomfic);
+        break;
+    case 'H':
+        histogramme(histoR,histoG,histoB,fichier);
+        printf("Histogramme Rouge : \n");
+        affichagehisto(histoR);
+        printf("Histogramme Vert : \n");
+        affichagehisto(histoG);
+        printf("Histogramme Bleu : \n");
+        affichagehisto(histoB);
         break;
     default:
         break;

@@ -22,7 +22,7 @@ int main()
 {
 	// exemple de déclaration d'un pointeur image
 	struct fichierimage* fichier = NULL;
-	char nomfic[100], nomfictraitee[100];
+	char nomfic[100];
 	char ch;
 	float pourcentage = 0;
 	int test = 0;
@@ -34,14 +34,8 @@ int main()
 	ch = getchar();
 	system(nomfic);
 	fichier = charger(nomfic);
-	printf("Veuillez entrer le nom que vous souhaitez donner %c l'image trait%ce : \n", 133, 130);
-	scanf("%s", &nomfictraitee);
-	clearBuffer();
 	//Traitement de l'image
-	menu(fichier, nomfictraitee);
-	printf("Pour pouvoir afficher l'image charg%ce appuyer sur une touche : \n", 130);
-	ch = getchar();
-	system(nomfictraitee);
+	menu(fichier);
 	free(fichier);
 
 }
